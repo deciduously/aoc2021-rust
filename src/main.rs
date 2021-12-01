@@ -25,7 +25,10 @@ mod day1 {
 	use anyhow::Result;
 
 	pub fn run() -> Result<()> {
-		println!("{}", part_one(&read_nums(&get_input(1, 1)?)));
+		// both parts use the same input
+		let puzzle_input = read_nums(&get_input(1, 1)?);
+		println!("part 1: {}", part_one(&puzzle_input));
+		println!("part 2: {}", part_two(&puzzle_input));
 		Ok(())
 	}
 
@@ -39,17 +42,28 @@ mod day1 {
 		largers
 	}
 
+	fn part_two(nums: &[i32]) -> i32 {
+		let mut window_sums = Vec::new();
+		for idx in 0..nums.len() - 2 {
+			window_sums.push(nums[idx] + nums[idx + 1] + nums[idx + 2]);
+		}
+		part_one(&window_sums)
+	}
+
 	#[cfg(test)]
 	mod test {
 		use super::*;
 		use pretty_assertions::assert_eq;
 		#[test]
-		fn test_day_one_part_one() {
+		fn test_part_one() {
 			let nums = [199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
 			assert_eq!(part_one(&nums), 7);
 		}
 		#[test]
-		fn test_day_one_part_two() {}
+		fn test_part_two() {
+			let nums = [199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
+			assert_eq!(part_two(&nums), 5);
+		}
 	}
 }
 
