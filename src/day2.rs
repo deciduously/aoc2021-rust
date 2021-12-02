@@ -5,6 +5,7 @@ use std::str::FromStr;
 pub fn run() -> Result<()> {
 	let steps = parse_input(&get_input(2, 1)?)?;
 	println!("part 1: {}", part_one(&steps));
+	println!("part 2: {}", part_two(&steps));
 	Ok(())
 }
 
@@ -51,6 +52,7 @@ impl FromStr for Step {
 
 #[derive(Debug, Default)]
 struct Submarine {
+	aim: i32,
 	horizontal: i32,
 	depth: i32,
 }
@@ -60,11 +62,22 @@ impl Submarine {
 		Self::default()
 	}
 
-	fn step(&mut self, step: Step) {
+	fn simple_step(&mut self, step: Step) {
 		match step.direction {
 			Direction::Up => self.depth -= step.amount,
 			Direction::Down => self.depth += step.amount,
 			Direction::Forward => self.horizontal += step.amount,
+		}
+	}
+
+	fn step_with_aim(&mut self, step: Step) {
+		match step.direction {
+			Direction::Up => self.aim -= step.amount,
+			Direction::Down => self.aim += step.amount,
+			Direction::Forward => {
+				self.horizontal += step.amount;
+				self.depth += self.aim * step.amount;
+			},
 		}
 	}
 }
@@ -82,7 +95,15 @@ fn parse_input(input: &str) -> Result<Vec<Step>> {
 fn part_one(steps: &[Step]) -> i32 {
 	let mut submarine = Submarine::new();
 	for step in steps {
-		submarine.step(*step);
+		submarine.simple_step(*step);
+	}
+	submarine.horizontal * submarine.depth
+}
+
+fn part_two(steps: &[Step]) -> i32 {
+	let mut submarine = Submarine::new();
+	for step in steps {
+		submarine.step_with_aim(*step);
 	}
 	submarine.horizontal * submarine.depth
 }
@@ -102,5 +123,17 @@ down 8
 forward 2
 "#;
 		assert_eq!(part_one(&parse_input(input).unwrap()), 150);
+	}
+	#[test]
+	fn test_part_two() {
+		let input = r#"
+forward 5
+down 5
+forward 8
+up 3
+down 8
+forward 2
+"#;
+		assert_eq!(part_two(&parse_input(input).unwrap()), 900);
 	}
 }
